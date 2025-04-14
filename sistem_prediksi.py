@@ -193,7 +193,7 @@ with tab2:
                 output_excel.seek(0)
 
                 st.download_button(
-                    label="📥 Unduh Hasil Prediksi",
+                    label="📥 Unduh Hasil Prediksi dalam Format Excel",
                     data=output_excel,
                     file_name="hasil_prediksi_ISPU.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
