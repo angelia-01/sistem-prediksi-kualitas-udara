@@ -138,18 +138,19 @@ with tab2:
      # Tambahkan petunjuk CSV di sini
     st.markdown("""
     #### 📌 Format CSV yang Diperlukan:
-    Silakan unggah file CSV dengan kolom-kolom sebagai berikut (tanpa header tambahan):
+    Silakan unggah file CSV dengan kolom-kolom sebagai berikut secara berurutan(tanpa header tambahan):
 
-    - **PM10**
-    - **PM2.5**
-    - **SO2**
-    - **CO**
-    - **O3**
-    - **NO2**
+    - **pm_sepuluh**
+    - **pm_duakomalima**
+    - **sulfur_dioksida**
+    - **karbon_monoksida**
+    - **ozon**
+    - **nitrogen_dioksida**
+    - **max** (opsional)
 
     Contoh isi file:
     ```
-    PM10,PM2.5,SO2,CO,O3,NO2  
+    pm_sepuluh,pm_duakomalima,sulfur_dioksida,karbon_monoksida,ozon,nitrogen_dioksida
     50,30,12,1.5,100,35  
     70,45,20,2.0,80,40
     ```
