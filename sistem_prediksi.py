@@ -102,7 +102,7 @@ with tab1:
         st.markdown(f"**Hasil Prediksi:** {st.session_state.prediksi_manual:.2f}")
 
         if actual_value:
-            tolerance = 10  # toleransi 10 poin
+            tolerance = 1.2033  # toleransi sebesar nilai rmse
             selisih = abs(st.session_state.prediksi_manual - actual_value)
             if selisih > tolerance:
                 st.warning("Perlu evaluasi, Prediksi dan nilai aktual berbeda cukup jauh.")
@@ -135,6 +135,27 @@ with tab1:
 
 with tab2:
     st.subheader("Unggah File CSV")
+     # Tambahkan petunjuk CSV di sini
+    st.markdown("""
+    #### 📌 Format CSV yang Diperlukan:
+    Silakan unggah file CSV dengan kolom-kolom sebagai berikut (tanpa header tambahan):
+
+    - **PM10**
+    - **PM2.5**
+    - **SO2**
+    - **CO**
+    - **O3**
+    - **NO2**
+
+    Contoh isi file:
+    ```
+    PM10,PM2.5,SO2,CO,O3,NO2  
+    50,30,12,1.5,100,35  
+    70,45,20,2.0,80,40
+    ```
+
+    **Catatan:** File harus dalam format `.csv` dan berisi angka-angka numerik saja.
+    """)
     uploaded_file = st.file_uploader("Pilih file CSV", type="csv")
 
     if uploaded_file is not None:
@@ -155,7 +176,7 @@ with tab2:
 
                 data["selisih"] = abs(data["prediksi"] - data["max"])
                 data["status"] = data.apply(lambda row: "Tidak perlu evaluasi"
-                                            if abs(row["prediksi"] - row["max"]) <= 10 else "Perlu Evaluasi", axis=1)
+                                            if abs(row["prediksi"] - row["max"]) <= 1.2033 else "Perlu Evaluasi", axis=1)
 
                 # Rename untuk ditampilkan
                 display_df = data.rename(columns=rename_columns)
