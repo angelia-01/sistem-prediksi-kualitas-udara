@@ -80,10 +80,10 @@ with tab1:
 
     pm10 = st.number_input("PM10 (Particulate Matter 10)", min_value=0.0, max_value=500.0, step=1.0, key="pm10")
     pm25 = st.number_input("PM2.5 (Particulate Matter 2.5)", min_value=0.0, max_value=500.0, step=1.0, key="pm25")
-    so2 = st.number_input("SO2 (Sulfur Dioksida)", min_value=0.0, max_value=1200.0, step=1.0, key="so2")
-    co = st.number_input("CO (Karbon Monoksida)", min_value=0.0, max_value=45000.0, step=1.0, key="co")
-    o3 = st.number_input("O3 (Ozon)", min_value=0.0, max_value=1000.0, step=1.0, key="o3")
-    no2 = st.number_input("NO2 (Nitrogen Dioksida)", min_value=0.0, max_value=3000.0, step=1.0, key="no2")
+    so2 = st.number_input("SO2 (Sulfur Dioksida)", min_value=0.0, max_value=500.0, step=1.0, key="so2")
+    co = st.number_input("CO (Karbon Monoksida)", min_value=0.0, max_value=500.0, step=1.0, key="co")
+    o3 = st.number_input("O3 (Ozon)", min_value=0.0, max_value=500.0, step=1.0, key="o3")
+    no2 = st.number_input("NO2 (Nitrogen Dioksida)", min_value=0.0, max_value=500.0, step=1.0, key="no2")
 
     input_data = pd.DataFrame([[pm10, pm25, so2, co, o3, no2]],
                               columns=["pm_sepuluh", "pm_duakomalima", "sulfur_dioksida", "karbon_monoksida", "ozon", "nitrogen_dioksida"])
