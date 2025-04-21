@@ -138,7 +138,7 @@ with tab2:
      # Tambahkan petunjuk CSV di sini
     st.markdown("""
     #### 📌 Format CSV yang Diperlukan:
-    Silakan unggah file CSV dengan kolom-kolom sebagai berikut secara berurutan(tanpa header tambahan):
+    Silakan unggah file CSV dengan kolom-kolom sebagai berikut:
 
     - **pm_sepuluh**
     - **pm_duakomalima**
