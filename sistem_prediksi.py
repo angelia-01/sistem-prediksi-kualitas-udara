@@ -4,9 +4,10 @@ import joblib
 import numpy as np
 import matplotlib.pyplot as plt
 import io
+from datetime import datetime
 
 # Load model
-model = joblib.load("model_rf_80.pkl")
+model = joblib.load("model_rf_80_revisi.pkl")
 
 # Styling for page
 st.set_page_config(page_title="Sistem Prediksi Kualitas Udara", layout="wide")
@@ -29,7 +30,10 @@ st.markdown("""
 # Judul aplikasi
 st.markdown("<h1 class='title-style'>Sistem Prediksi Kualitas Udara Jakarta Timur</h1>", unsafe_allow_html=True)
 st.markdown("""
-Prediksi dilakukan berdasarkan Nilai Indeks Standar Pencemar Udara (ISPU). ISPU adalah nilai yang digunakan untuk menggambarkan kondisi kualitas udara berdasarkan dampaknya terhadap kesehatan manusia dan lingkungan. ISPU sendiri adalah angka yang tidak mempunyai satuan dengan kegunaan untuk menggambarkan keadaan kualitas udara sekitar area tertentu dan  didasarkan pada dampak terhadap kesehatan manusia, nilai estetika, dan makhluk hidup lainnya 
+Prediksi dilakukan berdasarkan Nilai Indeks Standar Pencemar Udara (ISPU). ISPU adalah nilai yang digunakan untuk 
+menggambarkan kondisi kualitas udara berdasarkan dampaknya terhadap kesehatan manusia dan lingkungan. 
+ISPU sendiri adalah angka yang tidak mempunyai satuan dengan kegunaan untuk menggambarkan keadaan kualitas udara 
+sekitar area tertentu dan  didasarkan pada dampak terhadap kesehatan manusia, nilai estetika, dan makhluk hidup lainnya 
 """)
 
 rename_columns = {
@@ -40,6 +44,9 @@ rename_columns = {
     "ozon": "O3",
     "nitrogen_dioksida": "NO2",
     "max": "Max",
+    "bulan": "Bulan",
+    "hari_ke": "Hari-ke",
+    "minggu": "Minggu",
     "prediksi": "Prediksi",
     "selisih": "Selisih",
     "status": "Status"
@@ -85,8 +92,17 @@ with tab1:
     o3 = st.number_input("O3 (Ozon)", min_value=0.0, max_value=500.0, step=1.0, key="o3")
     no2 = st.number_input("NO2 (Nitrogen Dioksida)", min_value=0.0, max_value=500.0, step=1.0, key="no2")
 
-    input_data = pd.DataFrame([[pm10, pm25, so2, co, o3, no2]],
-                              columns=["pm_sepuluh", "pm_duakomalima", "sulfur_dioksida", "karbon_monoksida", "ozon", "nitrogen_dioksida"])
+    # Input tanggal
+    input_tanggal = st.date_input("Pilih Tanggal", key="tanggal")
+
+    # Konversi ke fitur numerik untuk model
+    bulan = input_tanggal.month
+    hari_ke = input_tanggal.timetuple().tm_yday  # Hari ke- dalam tahun (1-365/366)
+    minggu = input_tanggal.isocalendar()[1]      # Minggu ke- dalam tahun (1-53)
+
+    input_data = pd.DataFrame([[pm10, pm25, so2, co, o3, no2, bulan, hari_ke, minggu]],
+                        columns=["pm_sepuluh", "pm_duakomalima", "sulfur_dioksida", "karbon_monoksida", 
+                        "ozon", "nitrogen_dioksida", "bulan", "hari_ke", "minggu"])
 
     if st.button("Prediksi Kualitas Udara"):
         prediction = model.predict(input_data)[0]
@@ -102,7 +118,7 @@ with tab1:
         st.markdown(f"**Hasil Prediksi:** {st.session_state.prediksi_manual:.2f}")
 
         if actual_value:
-            tolerance = 1.2033  # toleransi sebesar nilai rmse
+            tolerance = 1.2481  # toleransi sebesar nilai rmse
             selisih = abs(st.session_state.prediksi_manual - actual_value)
             if selisih > tolerance:
                 st.warning("Perlu evaluasi, Prediksi dan nilai aktual berbeda cukup jauh.")
@@ -140,19 +156,24 @@ with tab2:
     #### 📌 Format CSV yang Diperlukan:
     Silakan unggah file CSV dengan kolom-kolom sebagai berikut:
 
-    - **pm_sepuluh**
-    - **pm_duakomalima**
-    - **sulfur_dioksida**
-    - **karbon_monoksida**
-    - **ozon**
-    - **nitrogen_dioksida**
-    - **max** (opsional)
+    | Kolom               | Deskripsi                          | Contoh Nilai |
+    |---------------------|------------------------------------|--------------|
+    | `bulan`             | Bulan (1-12)                       | 6            |
+    | `hari_ke`           | Hari ke- dalam tahun (1-365)       | 172          |
+    | `minggu`            | Minggu ke- dalam tahun (1-53)      | 25           |
+    | `pm_sepuluh`        | Konsentrasi PM10 (μg/m³)           | 50.0         |
+    | `pm_duakomalima`    | Konsentrasi PM2.5 (μg/m³)          | 30.0         |
+    | `sulfur_dioksida`   | Konsentrasi SO₂ (μg/m³)            | 12.0         |
+    | `karbon_monoksida`  | Konsentrasi CO (μg/m³)             | 1.5          |
+    | `ozon`              | Konsentrasi O₃ (μg/m³)             | 100.0        |
+    | `nitrogen_dioksida` | Konsentrasi NO₂ (μg/m³)            | 35.0         |
+    | `max`               | **(Opsional)** Nilai ISPU aktual   | 120.0        |
 
     Contoh isi file:
     ```
-    pm_sepuluh,pm_duakomalima,sulfur_dioksida,karbon_monoksida,ozon,nitrogen_dioksida
-    50,30,12,1.5,100,35  
-    70,45,20,2.0,80,40
+    bulan,hari_ke,minggu,pm_sepuluh,pm_duakomalima,sulfur_dioksida,karbon_monoksida,ozon,nitrogen_dioksida
+    6,15,3,50,30,12,1.5,100,35
+    7,20,4,70,45,20,2.0,80,40
     ```
 
     **Catatan:** File harus dalam format `.csv` dan berisi angka-angka numerik saja.
@@ -164,8 +185,8 @@ with tab2:
             data = pd.read_csv(uploaded_file)
 
             # Prediksi
-            predictions = model.predict(data[["pm_sepuluh", "pm_duakomalima", "sulfur_dioksida",
-                                            "karbon_monoksida", "ozon", "nitrogen_dioksida"]])
+            predictions = model.predict(data[["pm_sepuluh", "pm_duakomalima", "sulfur_dioksida", "karbon_monoksida", 
+                        "ozon", "nitrogen_dioksida", "bulan", "hari_ke", "minggu"]])
             data["prediksi"] = predictions
 
             # Tambahkan kategori dan warna
@@ -177,12 +198,12 @@ with tab2:
 
                 data["selisih"] = abs(data["prediksi"] - data["max"])
                 data["status"] = data.apply(lambda row: "Tidak perlu evaluasi"
-                                            if abs(row["prediksi"] - row["max"]) <= 1.2033 else "Perlu Evaluasi", axis=1)
+                                            if abs(row["prediksi"] - row["max"]) <= 1.2481 else "Perlu Evaluasi", axis=1)
 
                 # Rename untuk ditampilkan
                 display_df = data.rename(columns=rename_columns)
                 st.subheader("Hasil Prediksi dan Evaluasi:")
-                styled_eval_df = display_df[["PM10", "PM2.5", "SO2", "CO", "O3", "NO2", "Max", "Prediksi", "Kategori", "Selisih", "Status"]].reset_index(drop=True).style.applymap(highlight_kategori, subset=["Kategori"])
+                styled_eval_df = display_df[["PM10", "PM2.5", "SO2", "CO", "O3", "NO2", "Max", "Bulan", "Hari-ke", "Minggu", "Prediksi", "Kategori", "Selisih", "Status"]].reset_index(drop=True).style.applymap(highlight_kategori, subset=["Kategori"])
                 st.dataframe(styled_eval_df)
                  # Mengunduh hasil prediksi
                 output_excel = io.BytesIO()
@@ -214,7 +235,7 @@ with tab2:
                 st.success("Menampilkan hasil prediksi (tanpa evaluasi karena kolom 'max' tidak tersedia).")
                 display_df = data.rename(columns=rename_columns)
                 st.subheader("Hasil Prediksi:")
-                styled_df = display_df[["PM10", "PM2.5", "SO2", "CO", "O3", "NO2", "Prediksi", "Kategori"]].reset_index(drop=True).style.applymap(highlight_kategori, subset=["Kategori"])
+                styled_df = display_df[["PM10", "PM2.5", "SO2", "CO", "O3", "NO2", "Bulan", "Hari-ke", "Minggu", "Prediksi", "Kategori"]].reset_index(drop=True).style.applymap(highlight_kategori, subset=["Kategori"])
                 st.dataframe(styled_df)
                 # Mengunduh hasil prediksi
                 output_excel = io.BytesIO()
